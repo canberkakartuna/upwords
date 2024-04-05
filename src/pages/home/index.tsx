@@ -108,17 +108,15 @@ export default function Home() {
       return;
     }
 
-    const newPlayers = players.map((player) => {
-      if (typeof player === "string") {
-        return player;
-      }
-
-      return {
-        name: player.name,
-        words: [],
-        total: 0,
-      };
-    });
+    const newPlayers = players
+      .filter((player) => typeof player !== "string")
+      .map((player) => {
+        return {
+          name: player.name,
+          words: [],
+          total: 0,
+        };
+      });
 
     setData(newPlayers);
   }, [players]);
