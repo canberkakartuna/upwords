@@ -5,7 +5,8 @@ import "./style.css";
 
 interface Player {
   name: string;
-  score: number;
+  total: number;
+  words: string[];
 }
 
 interface DataType {
@@ -14,6 +15,40 @@ interface DataType {
   words: string[] | React.ReactNode[];
   total: number;
 }
+
+const points: {
+  [key: string]: number;
+} = {
+  A: 12,
+  B: 2,
+  C: 2,
+  Ç: 6,
+  D: 2,
+  E: 9,
+  F: 1,
+  G: 1,
+  Ğ: 1,
+  H: 1,
+  I: 4,
+  İ: 7,
+  J: 1,
+  K: 7,
+  L: 7,
+  M: 4,
+  N: 5,
+  O: 3,
+  Ö: 1,
+  P: 2,
+  R: 6,
+  S: 3,
+  Ş: 2,
+  T: 5,
+  U: 3,
+  Ü: 2,
+  V: 1,
+  Y: 2,
+  Z: 2,
+};
 
 export default function Home() {
   const [players, setPlayers] = React.useState<Array<string | Player>>([]);
@@ -36,16 +71,28 @@ export default function Home() {
       title: "Kelimeler",
       dataIndex: "words",
       key: "words",
+      render: (words: string[]) => (
+        <>
+          {words.map((word, index) => (
+            <Typography.Text key={index}>
+              {word}
+              {words.length - 1 !== index && ", "}
+            </Typography.Text>
+          ))}
+        </>
+      ),
     },
     {
       title: "Toplam Puan",
       dataIndex: "total",
+      align: "center",
       key: "total",
     },
     {
       title: "İşlemler",
       key: "actions",
-      render: (text, record) => (
+      align: "center",
+      render: (_, record) => (
         <Space>
           <Button
             size="small"
@@ -54,19 +101,6 @@ export default function Home() {
                 open: true,
                 name: record.name,
               });
-              //   const newPlayers = data.map((player) => {
-              //     if (player.key === record.key) {
-              //       return {
-              //         ...player,
-              //         words: [...player.words, "Yeni Kelime"],
-              //         total: player.total + 1,
-              //       };
-              //     }
-
-              //     return player;
-              //   });
-
-              //   setData(newPlayers);
             }}
           >
             Kelime Ekle
@@ -89,7 +123,7 @@ export default function Home() {
       return {
         name: player.name,
         words: [],
-        total: player.score,
+        total: 0,
       };
     });
 
@@ -99,21 +133,28 @@ export default function Home() {
   return (
     <Space className="home-container">
       <Space className="home-container-box" direction="vertical">
-        <Typography.Title level={4}>Upwords Oyuncu Listesi</Typography.Title>
-        <Input
-          placeholder={`${players.length + 1}. Oyuncu Adı`}
-          size="large"
-          value={playerName}
-          onChange={(e) => setPlayerName(e.target.value)}
-          onPressEnter={() => {
-            if (!playerName) {
-              message.error("Oyuncu adı boş bırakılamaz.");
-              return;
-            }
-            setPlayers([...players, { name: playerName, score: 0 }]);
-            setPlayerName("");
-          }}
-        />
+        <Typography.Title level={4}>
+          {hasGameStarted ? "Oyun Tablosu" : "Upwords Oyuncu Listesi"}
+        </Typography.Title>
+        {hasGameStarted === false && (
+          <Input
+            placeholder={`${players.length + 1}. Oyuncu Adı`}
+            size="large"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            onPressEnter={() => {
+              if (!playerName) {
+                message.error("Oyuncu adı boş bırakılamaz.");
+                return;
+              }
+              setPlayers([
+                ...players,
+                { name: playerName, words: [], total: 0 },
+              ]);
+              setPlayerName("");
+            }}
+          />
+        )}
         {hasGameStarted === false && (
           <Space>
             <Button
@@ -150,7 +191,11 @@ export default function Home() {
                 onChange={(e) => {
                   if (typeof player === "string") {
                     const newPlayers = [...players];
-                    newPlayers[index] = { name: e.target.value, score: 0 };
+                    newPlayers[index] = {
+                      name: e.target.value,
+                      total: 0,
+                      words: [],
+                    };
                     setPlayers(newPlayers);
                   } else {
                     player.name = e.target.value;
@@ -172,7 +217,12 @@ export default function Home() {
           ))}
 
         {hasGameStarted && (
-          <Table columns={columns} dataSource={data} pagination={false} />
+          <Table
+            rowKey={(record) => record.name}
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+          />
         )}
       </Space>
 
@@ -187,14 +237,47 @@ export default function Home() {
           okText="Ekle"
           cancelText="Kapat"
           onOk={() => {
-            // TODO: Onay
+            const newPlayers = data.map((player) => {
+              if (player.name === modalState.name) {
+                return {
+                  ...player,
+                  words: [...player.words, word],
+                  total:
+                    player.total +
+                    word
+                      .toUpperCase()
+                      .split("")
+                      .reduce((acc, letter) => acc + points[letter], 0),
+                };
+              }
+
+              return player;
+            });
+
+            setData(newPlayers);
+            setWord("");
+            setModalState({ open: false, name: "" });
           }}
         >
-          <Input
-            onChange={(e) => {
-              setWord(e);
+          <Space
+            direction="vertical"
+            style={{
+              width: "100%",
             }}
-          />
+          >
+            <Input
+              onChange={(e) => {
+                setWord(e.target.value);
+              }}
+            />
+            <Typography.Text>
+              Toplam Puan:{" "}
+              {word
+                .toUpperCase()
+                .split("")
+                .reduce((acc, letter) => acc + points[letter], 0)}
+            </Typography.Text>
+          </Space>
         </Modal>
       )}
     </Space>
