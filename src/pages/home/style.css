@@ -1,0 +1,15 @@
+.home-container {
+  width: 100%;
+}
+
+.home-container .ant-space-item {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.home-container-box {
+  justify-content: center;
+  max-width: 500px;
+  width: 100%;
+}
