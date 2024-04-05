@@ -9,13 +9,6 @@ interface Player {
   words: string[];
 }
 
-interface DataType {
-  key: React.Key;
-  name: string;
-  words: string[] | React.ReactNode[];
-  total: number;
-}
-
 const points: {
   [key: string]: number;
 } = {
@@ -54,14 +47,14 @@ export default function Home() {
   const [players, setPlayers] = React.useState<Array<string | Player>>([]);
   const [playerName, setPlayerName] = React.useState<string>("");
   const [hasGameStarted, setHasGameStarted] = React.useState<boolean>(false);
-  const [data, setData] = React.useState<DataType[]>([]);
+  const [data, setData] = React.useState<Player[]>([]);
   const [modalState, setModalState] = React.useState({
     open: false,
     name: "",
   });
   const [word, setWord] = React.useState("");
 
-  const columns: TableProps<DataType>["columns"] = [
+  const columns: TableProps<Player>["columns"] = [
     {
       title: "İsim",
       dataIndex: "name",
