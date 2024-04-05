@@ -44,7 +44,7 @@ const points: {
 };
 
 export default function Home() {
-  const [players, setPlayers] = React.useState<Array<string | Player>>([]);
+  const [players, setPlayers] = React.useState<Array<Player>>([]);
   const [playerName, setPlayerName] = React.useState<string>("");
   const [hasGameStarted, setHasGameStarted] = React.useState<boolean>(false);
   const [data, setData] = React.useState<Player[]>([]);
@@ -108,15 +108,13 @@ export default function Home() {
       return;
     }
 
-    const newPlayers = players
-      .filter((player) => typeof player !== "string")
-      .map((player) => {
-        return {
-          name: player?.name,
-          words: [],
-          total: 0,
-        };
-      });
+    const newPlayers = players.map((player) => {
+      return {
+        name: player?.name,
+        words: [],
+        total: 0,
+      };
+    });
 
     setData(newPlayers);
   }, [players]);
@@ -155,7 +153,10 @@ export default function Home() {
                   message.error("Oyuncu adı boş bırakılamaz.");
                   return;
                 }
-                setPlayers([...players, ""]);
+                setPlayers([
+                  ...players,
+                  { name: playerName, words: [], total: 0 },
+                ]);
               }}
             >
               Oyuncu Ekle
