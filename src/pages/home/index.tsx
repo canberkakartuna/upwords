@@ -112,7 +112,7 @@ export default function Home() {
       .filter((player) => typeof player !== "string")
       .map((player) => {
         return {
-          name: player.name,
+          name: player?.name,
           words: [],
           total: 0,
         };
