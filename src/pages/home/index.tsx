@@ -140,6 +140,14 @@ export default function Home() {
     setPlayerName("");
   };
 
+  const reset = () => {
+    setPlayers([]);
+    setPlayerName("");
+    setHasGameStarted(false);
+    setData([]);
+    localStorage.clear();
+  };
+
   return (
     <Space className="home-container">
       <Space className="home-container-box" direction="vertical">
@@ -211,16 +219,19 @@ export default function Home() {
           ))}
 
         {hasGameStarted && (
-          <Table
-            className="upwords-table"
-            rowKey={(record) => record.name}
-            columns={columns}
-            dataSource={data}
-            pagination={false}
-            scroll={{
-              y: 360,
-            }}
-          />
+          <Space direction="vertical">
+            <Table
+              className="upwords-table"
+              rowKey={(record) => record.name}
+              columns={columns}
+              dataSource={data}
+              pagination={false}
+              scroll={{
+                y: 360,
+              }}
+            />
+            <Button onClick={reset}>Oyunu Bitir</Button>
+          </Space>
         )}
       </Space>
 
