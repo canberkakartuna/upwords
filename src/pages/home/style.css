@@ -13,3 +13,7 @@
   max-width: 500px;
   width: 100%;
 }
+
+.upwords-table .ant-table-header .ant-table-cell {
+  padding: 4px 4px;
+}

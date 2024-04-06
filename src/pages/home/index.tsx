@@ -104,6 +104,16 @@ export default function Home() {
   ];
 
   React.useEffect(() => {
+    const players = localStorage.getItem("players");
+    const hasGameStarted = localStorage.getItem("hasGameStarted");
+    if (hasGameStarted) setHasGameStarted(true);
+
+    if (players) {
+      setPlayers(JSON.parse(players));
+    }
+  }, []);
+
+  React.useEffect(() => {
     if (players.length < 2) {
       return;
     }
@@ -119,6 +129,17 @@ export default function Home() {
     setData(newPlayers);
   }, [players]);
 
+  const addPlayer = () => {
+    if (!playerName) {
+      message.error("Oyuncu adı boş bırakılamaz.");
+      return;
+    }
+    const newPlayer = [...players, { name: playerName, words: [], total: 0 }];
+    setPlayers(newPlayer);
+    localStorage.setItem("players", JSON.stringify(newPlayer));
+    setPlayerName("");
+  };
+
   return (
     <Space className="home-container">
       <Space className="home-container-box" direction="vertical">
@@ -131,41 +152,22 @@ export default function Home() {
             size="large"
             value={playerName}
             onChange={(e) => setPlayerName(e.target.value)}
-            onPressEnter={() => {
-              if (!playerName) {
-                message.error("Oyuncu adı boş bırakılamaz.");
-                return;
-              }
-              setPlayers([
-                ...players,
-                { name: playerName, words: [], total: 0 },
-              ]);
-              setPlayerName("");
-            }}
+            onPressEnter={addPlayer}
           />
         )}
         {hasGameStarted === false && (
           <Space>
-            <Button
-              size="large"
-              onClick={() => {
-                if (!playerName) {
-                  message.error("Oyuncu adı boş bırakılamaz.");
-                  return;
-                }
-                setPlayers([
-                  ...players,
-                  { name: playerName, words: [], total: 0 },
-                ]);
-              }}
-            >
+            <Button size="large" onClick={addPlayer}>
               Oyuncu Ekle
             </Button>
             <Button
               type="primary"
               size="large"
               disabled={players.length < 2}
-              onClick={() => setHasGameStarted(true)}
+              onClick={() => {
+                setHasGameStarted(true);
+                localStorage.setItem("hasGameStarted", "true");
+              }}
             >
               Oyuna Başla
             </Button>
@@ -210,10 +212,14 @@ export default function Home() {
 
         {hasGameStarted && (
           <Table
+            className="upwords-table"
             rowKey={(record) => record.name}
             columns={columns}
             dataSource={data}
             pagination={false}
+            scroll={{
+              y: 360,
+            }}
           />
         )}
       </Space>
@@ -247,6 +253,7 @@ export default function Home() {
             });
 
             setData(newPlayers);
+            message.success(`${word} eklendi.`);
             setWord("");
             setModalState({ open: false, name: "" });
           }}
